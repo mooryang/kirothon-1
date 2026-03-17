@@ -1,0 +1,653 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-term-green: #00ff41;
+  --color-term-amber: #ffb000;
+  --color-term-cyan: #00d4ff;
+  --color-term-red: #ff3333;
+  --color-term-yellow: #ffff00;
+  --color-term-bg: #111111;
+  --color-term-border: #3d3d3d;
+  --color-panel-bg: rgba(0, 25, 0, 0.5);
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+body {
+  background: var(--color-term-bg);
+  color: var(--color-term-green);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* === CRT 스캔라인 효과 === */
+.crt-overlay::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.08) 0px,
+    rgba(0, 0, 0, 0.08) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* === CRT 화면 곡률 + 비네팅 === */
+.crt-screen {
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(0, 255, 65, 0.1);
+  border-radius: 8px;
+}
+
+/* === 텍스트 글로우 === */
+.glow-text {
+  text-shadow:
+    0 0 5px rgba(0, 255, 65, 0.5),
+    0 0 10px rgba(0, 255, 65, 0.25);
+}
+
+.glow-text-amber {
+  text-shadow:
+    0 0 5px rgba(255, 176, 0, 0.5),
+    0 0 10px rgba(255, 176, 0, 0.25);
+}
+
+/* === 커서 깜빡임 === */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.cursor-blink::after {
+  content: '\2588';
+  animation: blink 1s step-end infinite;
+  color: var(--color-term-green);
+}
+
+/* === tmux 스타일 패널 보더 === */
+.panel {
+  border: 1px solid var(--color-term-border);
+  background: var(--color-panel-bg);
+  position: relative;
+}
+.panel-label {
+  position: absolute;
+  top: -1px;
+  left: 8px;
+  background: var(--color-term-bg);
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--color-term-amber);
+  z-index: 1;
+}
+
+/* === Panel Tier 스타일 === */
+.panel-primary {
+  border-color: #225a22;
+  border-left: 2px solid rgba(0,255,65,0.6);
+  background: rgba(0, 28, 0, 0.65);
+  box-shadow: inset 0 0 30px rgba(0, 255, 65, 0.05), 0 -1px 15px rgba(0, 255, 65, 0.05);
+}
+.panel-secondary {
+  border-color: #4a4a4a;
+  background: rgba(0, 25, 0, 0.55);
+}
+.panel-info {
+  border-color: #333;
+  background: rgba(0, 25, 0, 0.45);
+}
+
+/* === Panel 좌측 accent 보더 === */
+.panel-accent-green  { border-left: 2px solid rgba(0,255,65,0.65); }
+.panel-accent-amber  { border-left: 2px solid rgba(255,176,0,0.55); }
+.panel-accent-cyan   { border-left: 2px solid rgba(0,212,255,0.55); }
+.panel-accent-red    { border-left: 2px solid rgba(255,51,51,0.55); }
+
+/* === Panel 헤더 바 === */
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-bottom: 1px solid rgba(68, 68, 68, 0.7);
+  font-size: 12px;
+  color: var(--color-term-amber);
+  flex-shrink: 0;
+}
+/* accent 색상별 헤더 배경 블리드 */
+.panel-accent-green .panel-header  { background: linear-gradient(90deg, rgba(0,255,65,0.04) 0%, transparent 60%); }
+.panel-accent-amber .panel-header  { background: linear-gradient(90deg, rgba(255,176,0,0.04) 0%, transparent 60%); }
+.panel-accent-cyan .panel-header   { background: linear-gradient(90deg, rgba(0,212,255,0.04) 0%, transparent 60%); }
+.panel-accent-red .panel-header    { background: linear-gradient(90deg, rgba(255,51,51,0.04) 0%, transparent 60%); }
+.panel-header .panel-icon {
+  flex-shrink: 0;
+}
+.panel-header .panel-title {
+  flex-shrink: 0;
+}
+.panel-header .panel-badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 9999px;
+  background: rgba(0, 255, 65, 0.1);
+  color: var(--color-term-green);
+  text-shadow: 0 0 4px rgba(0, 255, 65, 0.3);
+}
+.panel-header .panel-badge-warn {
+  background: rgba(255, 176, 0, 0.15);
+  color: var(--color-term-amber);
+}
+.panel-header .panel-badge-danger {
+  background: rgba(255, 51, 51, 0.15);
+  color: var(--color-term-red);
+}
+
+/* === 상태 색상 (자율성 레벨) === */
+.status-auto { color: #00ff41; }
+.status-approve { color: #ffff00; }
+.status-direct { color: #ff3333; }
+
+/* === 롤링 로그 애니메이션 === */
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.log-entry {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* === 타이핑 효과 === */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.typing-effect {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 1.5s steps(40) forwards;
+}
+
+/* === 스크롤바 숨김 === */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* === 터미널 스크롤바 === */
+.scrollbar-terminal::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-terminal::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-terminal::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 65, 0.3);
+  border-radius: 2px;
+}
+.scrollbar-terminal::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 65, 0.5);
+}
+.scrollbar-terminal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 65, 0.3) transparent;
+}
+
+/* === recharts 터미널 오버라이드 === */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--color-term-green) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+}
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--color-term-border) !important;
+}
+
+/* === 버튼 글로우 효과 === */
+.glow-button {
+  transition: all 0.2s ease;
+}
+.glow-button:hover {
+  text-shadow:
+    0 0 5px rgba(0, 255, 65, 0.6),
+    0 0 15px rgba(0, 255, 65, 0.3);
+  box-shadow:
+    0 0 5px rgba(0, 255, 65, 0.3),
+    0 0 15px rgba(0, 255, 65, 0.15);
+}
+
+/* === 타임클럭 펄스 — 앰버 (퇴근 버튼) === */
+@keyframes clockPulseAmber {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 176, 0, 0.2), 0 0 15px rgba(255, 176, 0, 0.05);
+    border-color: rgba(255, 176, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 176, 0, 0.5), 0 0 30px rgba(255, 176, 0, 0.15);
+    border-color: rgba(255, 176, 0, 0.9);
+  }
+}
+.clock-pulse-amber {
+  animation: clockPulseAmber 2s ease-in-out infinite;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.clock-pulse-amber:hover {
+  animation: none;
+  box-shadow: 0 0 20px rgba(255, 176, 0, 0.6), 0 0 40px rgba(255, 176, 0, 0.2);
+  border-color: #ffb000;
+  background: rgba(255, 176, 0, 0.15);
+}
+
+/* === 타임클럭 펄스 — 그린 (출근 버튼) === */
+@keyframes clockPulseGreen {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 255, 65, 0.2), 0 0 15px rgba(0, 255, 65, 0.05);
+    border-color: rgba(0, 255, 65, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(0, 255, 65, 0.5), 0 0 30px rgba(0, 255, 65, 0.15);
+    border-color: rgba(0, 255, 65, 0.9);
+  }
+}
+.clock-pulse-green {
+  animation: clockPulseGreen 2s ease-in-out infinite;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.clock-pulse-green:hover {
+  animation: none;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.2);
+  border-color: #00ff41;
+  background: rgba(0, 255, 65, 0.15);
+}
+
+/* === 텍스트 진행바 === */
+.progress-bar {
+  font-family: var(--font-mono);
+  letter-spacing: -1px;
+}
+
+/* ========================================
+   야간 모드 테마 오버라이드
+   [data-shift="night"] 셀렉터
+   ======================================== */
+
+[data-shift="night"] .panel {
+  border-color: #3a3000;
+  background: rgba(25, 18, 0, 0.55);
+}
+
+[data-shift="night"] .crt-screen {
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 176, 0, 0.1);
+}
+
+[data-shift="night"] .crt-overlay::after {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.12) 0px,
+    rgba(0, 0, 0, 0.12) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+[data-shift="night"] .glow-text {
+  text-shadow:
+    0 0 5px rgba(255, 176, 0, 0.5),
+    0 0 10px rgba(255, 176, 0, 0.25);
+}
+
+[data-shift="night"] .cursor-blink::after {
+  color: var(--color-term-amber);
+}
+
+/* === 야간 모드 애니메이션 === */
+
+@keyframes nightBreathing {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 176, 0, 0.05); }
+  50% { box-shadow: 0 0 40px rgba(255, 176, 0, 0.15); }
+}
+
+@keyframes scanSweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes screenBoot {
+  0% {
+    clip-path: inset(50% 50% 50% 50%);
+    opacity: 0;
+  }
+  30% {
+    clip-path: inset(49% 0 49% 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeToBlack {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* === NightActive 전용 스타일 === */
+
+.night-breathing {
+  animation: nightBreathing 4s ease-in-out infinite;
+}
+
+.scan-sweep-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 176, 0, 0.3), transparent);
+  animation: scanSweep 8s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-term-amber);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+.screen-boot {
+  animation: screenBoot 0.8s ease-out forwards;
+}
+
+/* === 퇴근 씬 — 따뜻한 앰버 분위기 === */
+.evening-scene {
+  background: radial-gradient(
+    ellipse at 30% 50%,
+    rgba(255, 176, 0, 0.06) 0%,
+    rgba(20, 15, 0, 0.4) 50%,
+    rgba(10, 10, 10, 1) 100%
+  );
+}
+
+/* 선배 캐릭터 영역 — 은은한 따뜻한 백라이트 */
+.senpai-evening-glow {
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(255, 176, 0, 0.08) 0%,
+    transparent 70%
+  );
+}
+
+/* === 전환 오버레이 === */
+.clockout-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === CRT 부팅 스플래시 === */
+@keyframes crtFlicker {
+  0% { opacity: 0.3; }
+  5% { opacity: 1; }
+  10% { opacity: 0.2; }
+  15% { opacity: 0.9; }
+  20% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes lineExpand {
+  0% { clip-path: inset(50% 45% 50% 45%); }
+  100% { clip-path: inset(0% 0% 0% 0%); }
+}
+
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+}
+
+.splash-flicker {
+  animation: crtFlicker 0.4s ease-out forwards;
+}
+
+.splash-expand {
+  animation: lineExpand 0.2s ease-out forwards;
+}
+
+/* === CRT 전원 ON — 점 (Phase 0-0) === */
+.crt-power-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 20px #fff, 0 0 40px rgba(0, 255, 65, 0.5);
+  animation: crtDotPulse 0.2s ease-out forwards;
+}
+
+@keyframes crtDotPulse {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === CRT 전원 ON — 수평선 (Phase 0-1) === */
+.crt-power-line {
+  width: 60%;
+  height: 2px;
+  background: rgba(0, 255, 65, 0.8);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.6), 0 0 30px rgba(0, 255, 65, 0.3);
+  animation: crtLineExpand 0.2s ease-out forwards;
+}
+
+@keyframes crtLineExpand {
+  0% { width: 4px; opacity: 0.5; }
+  100% { width: 60%; opacity: 1; }
+}
+
+/* === 배경 인광체 워밍업 === */
+@keyframes phosphorWarmup {
+  0%   { background: #000; }
+  100% { background: #111111; }
+}
+
+/* === 태그라인 글로우 등장 === */
+@keyframes textRevealGlow {
+  0%   { opacity: 0; text-shadow: none; }
+  50%  { opacity: 1; text-shadow: 0 0 10px rgba(0, 255, 65, 0.8),
+         0 0 20px rgba(0, 255, 65, 0.4), 0 0 40px rgba(0, 255, 65, 0.2); }
+  100% { opacity: 1; text-shadow: 0 0 5px rgba(0, 255, 65, 0.4),
+         0 0 10px rgba(0, 255, 65, 0.2); }
+}
+
+.text-reveal-glow {
+  animation: textRevealGlow 0.8s ease-out forwards;
+}
+
+/* === 프로그레스 바 채움 === */
+@keyframes progressFill {
+  0%   { width: 0; }
+  100% { width: 100%; }
+}
+
+/* === 선배 캐릭터 부유 애니메이션 === */
+@keyframes senpaiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.senpai-float { animation: senpaiFloat 3s ease-in-out infinite; }
+
+/* === 선배 호흡 글로우 === */
+@keyframes senpaiBreathing {
+  0%, 100% { text-shadow: 0 0 8px rgba(0, 255, 65, 0.3); }
+  50% { text-shadow: 0 0 18px rgba(0, 255, 65, 0.6), 0 0 30px rgba(0, 255, 65, 0.25); }
+}
+.senpai-breathing { animation: senpaiBreathing 3s ease-in-out infinite; }
+
+/* === 선배 놀람 흔들림 (alert mood) === */
+@keyframes senpaiShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+.senpai-shake { animation: senpaiShake 0.3s ease-in-out; }
+
+/* === 호버 시 패널 글로우 === */
+.senpai-hover-glow { transition: box-shadow 0.3s ease; }
+.senpai-hover-glow:hover {
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.08);
+}
+
+/* === 빨간 글로우 (커피 과다/에너지 부족) === */
+.glow-text-red {
+  text-shadow: 0 0 5px rgba(255, 51, 51, 0.4), 0 0 10px rgba(255, 51, 51, 0.2);
+}
+
+/* === 선배 말풍선 === */
+.senpai-bubble {
+  position: relative;
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid rgba(0, 255, 65, 0.15);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.senpai-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid rgba(0, 255, 65, 0.15);
+}
+
+/* === mood별 배경 전환 === */
+.senpai-mood-transition {
+  transition: background 0.7s ease;
+}
+
+/* === 야근 프로그레스 바 채움 애니메이션 === */
+@keyframes shiftProgress {
+  from { background-position: 0% 0%; }
+  to { background-position: 200% 0%; }
+}
+.shift-progress-fill {
+  background: linear-gradient(90deg, #00ff41, #00d4ff, #00ff41);
+  background-size: 200% 100%;
+  animation: shiftProgress 3s linear infinite;
+}
+
+/* === 선배 캐릭터 백라이트 — 은은한 CRT 인광체 느낌 === */
+.senpai-backlight {
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(0, 255, 65, 0.06) 0%,
+    rgba(0, 255, 65, 0.02) 40%,
+    transparent 70%
+  );
+}
+/* 무드별 백라이트 변형 */
+.senpai-backlight-alert {
+  background: radial-gradient(circle at 50% 40%, rgba(255,51,51,0.06) 0%, transparent 70%);
+}
+.senpai-backlight-tired {
+  background: radial-gradient(circle at 50% 40%, rgba(255,176,0,0.05) 0%, transparent 70%);
+}
+
+/* === Task 완료/복귀 글로우 === */
+@keyframes taskCompleteGlow {
+  0% { background: rgba(0,255,65,0.15); text-shadow: 0 0 8px rgba(0,255,65,0.5); }
+  100% { background: transparent; text-shadow: none; }
+}
+.task-complete-glow { animation: taskCompleteGlow 0.6s ease-out forwards; }
+
+@keyframes taskUncompleteGlow {
+  0% { background: rgba(255,176,0,0.12); text-shadow: 0 0 6px rgba(255,176,0,0.4); }
+  100% { background: transparent; text-shadow: none; }
+}
+.task-uncomplete-glow { animation: taskUncompleteGlow 0.6s ease-out forwards; }
+
+/* === Weekly Journey: 오늘 커서 펄스 === */
+@keyframes todayCursorPulse {
+  0%, 100% { text-shadow: 0 0 5px rgba(255,176,0,0.6); opacity: 1; }
+  50% { text-shadow: 0 0 15px rgba(255,176,0,0.9), 0 0 25px rgba(255,176,0,0.4); opacity: 0.7; }
+}
+.today-cursor-pulse {
+  animation: todayCursorPulse 1.5s ease-in-out infinite;
+}
+
+/* === AIZ ENTERTAINMENT 글로우 펄스 === */
+@keyframes aizGlowPulse {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.4), 0 0 10px rgba(0, 255, 65, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(0, 255, 65, 0.8), 0 0 30px rgba(0, 255, 65, 0.4), 0 0 60px rgba(0, 255, 65, 0.2);
+  }
+}
+.aiz-glow {
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.4), 0 0 10px rgba(0, 255, 65, 0.2);
+  animation: aizGlowPulse 0.7s ease-in-out 2;
+}
+
+/* === AIZ 라인 등장 번쩍 효과 === */
+@keyframes aizLineAppear {
+  0% { opacity: 0; text-shadow: 0 0 20px rgba(0, 255, 65, 0.8); }
+  50% { opacity: 1; text-shadow: 0 0 30px rgba(0, 255, 65, 1), 0 0 60px rgba(0, 255, 65, 0.5); }
+  100% { opacity: 1; text-shadow: 0 0 5px rgba(0, 255, 65, 0.4), 0 0 10px rgba(0, 255, 65, 0.2); }
+}
+.aiz-line-appear {
+  animation: aizLineAppear 0.3s ease-out forwards;
+}
+
+/* === 포커스 인디케이터 === */
+*:focus-visible {
+  outline: 1px solid var(--color-term-green);
+  outline-offset: 2px;
+  box-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+}
+[data-shift="night"] *:focus-visible {
+  outline-color: var(--color-term-amber);
+  box-shadow: 0 0 5px rgba(255, 176, 0, 0.3);
+}

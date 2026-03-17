@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "출력 스키마 검증",
+  "description": "파일 쓰기 작업 전 output-schema.md의 JSON 스키마를 준수하는지 검증한다. 에이전트 출력 파일에 대해서만 동작.",
+  "version": "1",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "이 쓰기 작업이 에이전트 분석 결과를 저장하는 것이라면, output-schema.md의 공통 스키마(agent, category, summary, detail, risk_level, senpai_comment 필수 필드)를 준수하는지 확인해. 스키마 위반이 있으면 수정을 제안해."
+  }
+}

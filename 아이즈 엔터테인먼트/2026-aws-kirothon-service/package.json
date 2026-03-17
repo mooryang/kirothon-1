@@ -1,0 +1,26 @@
+{
+  "name": "cs-senpai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI가 당신이 쉬는 동안 일합니다 — 웹 터미널 대시보드",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.0",
+    "framer-motion": "^12.0.0",
+    "figlet": "^1.8.0",
+    "better-sqlite3": "^11.0.0",
+    "@octokit/rest": "^21.0.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0"
+  }
+}

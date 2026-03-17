@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "저장 시 린트 체크",
+  "description": "JS/JSX 파일 저장 시 review-standard.md 기준으로 빠른 린트 체크를 실행한다.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.js",
+      "*.jsx"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npx eslint --no-error-on-unmatched-pattern --format compact ${file}",
+    "timeout": 30
+  }
+}
